@@ -1,9 +1,12 @@
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext, ConversationHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext, ConversationHandler
 import logging
 import sqlite3
 import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
+
+# Импортируем нужные фильтры
+from telegram.constants import Filters as FiltersConstant
 
 # Настройки логгера
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -170,20 +173,20 @@ def main():
     dp = updater.dispatcher
 
     # Конверсационный хендлер
-    conv_handler = ConversationHandler(
-        entry_points=[CommandHandler('start', start)],
-        states={
-            NAME: [MessageHandler(Filters.text & ~Filters.command, handle_name)],
-            START_WORK: [MessageHandler(Filters.regex('^Начать рабочий день$'), start_work)],
-            END_WORK: [MessageHandler(Filters.regex('^Завершить рабочий день$'), end_work)],
-            STORE_VISIT: [MessageHandler(Filters.text & ~Filters.command, store_visit)],
-            PROFIT: [MessageHandler(Filters.text & ~Filters.command, report_profit)],
-            PURCHASE: [MessageHandler(Filters.text & ~Filters.command, report_purchase)],
-            COMMISSION: [MessageHandler(Filters.text & ~Filters.command, report_commission)],
-            ADDITIONAL_WORK: [MessageHandler(Filters.text & ~Filters.command, additional_work)]
-        },
-        fallbacks=[]
-    )
+conv_handler = ConversationHandler(
+    entry_points=[CommandHandler('start', start)],
+    states={
+        NAME: [MessageHandler(FiltersConstant.TEXT & ~FiltersConstant.COMMAND, handle_name)],
+        START_WORK: [MessageHandler(FiltersConstant.REGEX('^Начать рабочий день$'), start_work)],
+        END_WORK: [MessageHandler(FiltersConstant.REGEX('^Завершить рабочий день$'), end_work)],
+        STORE_VISIT: [MessageHandler(FiltersConstant.TEXT & ~FiltersConstant.COMMAND, store_visit)],
+        PROFIT: [MessageHandler(FiltersConstant.TEXT & ~FiltersConstant.COMMAND, report_profit)],
+        PURCHASE: [MessageHandler(FiltersConstant.TEXT & ~FiltersConstant.COMMAND, report_purchase)],
+        COMMISSION: [MessageHandler(FiltersConstant.TEXT & ~FiltersConstant.COMMAND, report_commission)],
+        ADDITIONAL_WORK: [MessageHandler(FiltersConstant.TEXT & ~FiltersConstant.COMMAND, additional_work)]
+    },
+    fallbacks=[]
+)
 
     dp.add_handler(conv_handler)
 
